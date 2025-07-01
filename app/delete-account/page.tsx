@@ -9,22 +9,47 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Activity, AlertTriangle, ArrowLeft, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { supabase } from "../../lib/supabaseClient"
+import { useRouter } from "next/navigation"
 
 export default function DeleteAccountPage() {
   const [confirmText, setConfirmText] = useState("")
   const [confirmChecked, setConfirmChecked] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
 
   const handleDeleteAccount = async () => {
     if (confirmText !== "DELETE" || !confirmChecked) return
-
     setIsDeleting(true)
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Account deleted")
+    setError(null)
+    // Get the current session and JWT
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+    if (sessionError || !session) {
+      setError("Could not get user session. Please log in again.")
       setIsDeleting(false)
-      // Redirect to sign-in page
-    }, 2000)
+      return
+    }
+    try {
+      const res = await fetch("https://zsmslciskgzvzqvwceos.supabase.co/functions/v1/delete-account", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${session.access_token}`,
+          "Content-Type": "application/json"
+        }
+      })
+      if (!res.ok) {
+        const errText = await res.text()
+        throw new Error(errText || "Failed to delete account.")
+      }
+      // Sign out and redirect
+      await supabase.auth.signOut()
+      router.push("/")
+    } catch (err: any) {
+      setError(err.message || "Failed to delete account.")
+    } finally {
+      setIsDeleting(false)
+    }
   }
 
   const canDelete = confirmText === "DELETE" && confirmChecked
@@ -154,6 +179,12 @@ export default function DeleteAccountPage() {
                 )}
               </Button>
             </div>
+
+            {error && (
+              <Alert className="border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">{error}</AlertDescription>
+              </Alert>
+            )}
           </CardContent>
         </Card>
 

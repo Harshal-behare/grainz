@@ -1,28 +1,67 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Activity, Heart, Settings, Trash2, User, LogOut, Shield } from "lucide-react"
 import Link from "next/link"
+import { supabase } from "../../lib/supabaseClient"
+import { useRouter } from "next/navigation"
 
 export default function UserDashboard() {
-  const [user] = useState({
-    name: "John Doe",
-    email: "john@example.com",
-    plan: "Premium",
-    joinDate: "2024-01-15",
-  })
+  const [user, setUser] = useState<any>(null)
+  const [profile, setProfile] = useState<any>(null)
+  const [dailyActivity, setDailyActivity] = useState<any>(null)
+  const [nutrition, setNutrition] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
-  const handleDeletePages = () => {
-    // Handle delete pages logic
-    console.log("Delete pages requested")
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.push("/")
+        return
+      }
+      setUser(user)
+      // Fetch profile
+      const { data: profile } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", user.id)
+        .single()
+      setProfile(profile)
+      // Fetch today's activity
+      const today = new Date().toISOString().slice(0, 10)
+      const { data: activity } = await supabase
+        .from("daily_activity")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", today)
+        .single()
+      setDailyActivity(activity)
+      // Fetch today's nutrition
+      const { data: nutrition } = await supabase
+        .from("daily_nutrition")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("date", today)
+        .single()
+      setNutrition(nutrition)
+      setLoading(false)
+    }
+    fetchData()
+  }, [router])
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push("/")
   }
 
-  const handleLogout = () => {
-    // Handle logout logic
-    console.log("Logout requested")
+  if (loading) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
   }
 
   return (
@@ -38,7 +77,7 @@ export default function UserDashboard() {
               <h1 className="text-xl font-semibold text-gray-900">Grainz</h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Badge variant="secondary">{user.plan}</Badge>
+              <Badge variant="secondary">{profile?.plan || "User"}</Badge>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
@@ -47,13 +86,11 @@ export default function UserDashboard() {
           </div>
         </div>
       </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-gray-900">Welcome back, {user.name}!</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Welcome back, {profile?.username || user?.email}!</h2>
           <p className="text-gray-600">Manage your Grainz account and data</p>
         </div>
-
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Account Info */}
           <Card>
@@ -65,61 +102,113 @@ export default function UserDashboard() {
             </CardHeader>
             <CardContent className="space-y-2">
               <div>
-                <p className="text-sm font-medium text-gray-500">Name</p>
-                <p className="text-sm">{user.name}</p>
+                <p className="text-sm font-medium text-gray-500">Email</p>
+                <p className="text-sm">{profile?.email}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500">Email</p>
-                <p className="text-sm">{user.email}</p>
+                <p className="text-sm font-medium text-gray-500">Username</p>
+                <p className="text-sm">{profile?.username || "-"}</p>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Plan</p>
-                <Badge variant="outline">{user.plan}</Badge>
+                <Badge variant="outline">{profile?.plan || "-"}</Badge>
               </div>
               <div>
                 <p className="text-sm font-medium text-gray-500">Member since</p>
-                <p className="text-sm">{new Date(user.joinDate).toLocaleDateString()}</p>
+                <p className="text-sm">{profile?.created_at ? new Date(profile.created_at).toLocaleDateString() : "-"}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Streak Days</p>
+                <p className="text-sm">{profile?.streakdays ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Current Weight</p>
+                <p className="text-sm">{profile?.currentweight ?? "-"} kg</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Goal Weight</p>
+                <p className="text-sm">{profile?.goalweight ?? "-"} kg</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Height</p>
+                <p className="text-sm">{profile?.height ?? "-"} cm</p>
               </div>
             </CardContent>
           </Card>
-
-          {/* Health Data Management */}
+          {/* Daily Activity */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Heart className="h-5 w-5 mr-2" />
-                Health Data
+                Today's Activity
               </CardTitle>
-              <CardDescription>Manage your health tracking data</CardDescription>
+              <CardDescription>Track your daily health metrics</CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button variant="destructive" className="w-full" onClick={handleDeletePages}>
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Health Pages
-              </Button>
-              <p className="text-xs text-gray-500 mt-2">This will remove all your health tracking pages and data</p>
+            <CardContent className="space-y-2">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Weight</p>
+                <p className="text-sm">{dailyActivity?.weight ?? "-"} kg</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Water Glasses</p>
+                <p className="text-sm">{dailyActivity?.water_glasses ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Calories Intake</p>
+                <p className="text-sm">{dailyActivity?.calories_intake ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Sleep Hours</p>
+                <p className="text-sm">{dailyActivity?.sleep_hours ?? 0}</p>
+              </div>
             </CardContent>
           </Card>
-
-          {/* Account Settings */}
+          {/* Daily Nutrition */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Settings className="h-5 w-5 mr-2" />
-                Account Settings
+                Today's Nutrition
               </CardTitle>
-              <CardDescription>Manage your account preferences</CardDescription>
+              <CardDescription>Overview of your nutrition today</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Button variant="outline" className="w-full bg-transparent">
-                <Settings className="h-4 w-4 mr-2" />
-                Edit Profile
-              </Button>
-              <Button variant="outline" className="w-full bg-transparent">
-                <Shield className="h-4 w-4 mr-2" />
-                Privacy Settings
-              </Button>
-              <Link href="/delete-account" className="block">
+            <CardContent className="space-y-2">
+              <div>
+                <p className="text-sm font-medium text-gray-500">Total Calories</p>
+                <p className="text-sm">{nutrition?.total_calories ?? 0}</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Protein</p>
+                <p className="text-sm">{nutrition?.total_protein ?? 0} g</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Carbs</p>
+                <p className="text-sm">{nutrition?.total_carbs ?? 0} g</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Fat</p>
+                <p className="text-sm">{nutrition?.total_fat ?? 0} g</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Fiber</p>
+                <p className="text-sm">{nutrition?.total_fiber ?? 0} g</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Sugar</p>
+                <p className="text-sm">{nutrition?.total_sugar ?? 0} g</p>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-500">Sodium</p>
+                <p className="text-sm">{nutrition?.total_sodium ?? 0} mg</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        {/* Quick Links */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Card>
+            <CardContent className="p-6 flex flex-col items-center">
+              <Link href="/delete-account">
                 <Button variant="destructive" className="w-full">
                   <Trash2 className="h-4 w-4 mr-2" />
                   Delete Account
@@ -127,61 +216,6 @@ export default function UserDashboard() {
               </Link>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Quick Stats */}
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Overview</h3>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Heart className="h-8 w-8 text-red-500" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Health Score</p>
-                    <p className="text-2xl font-bold">85</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <Activity className="h-8 w-8 text-green-500" />
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Active Days</p>
-                    <p className="text-2xl font-bold">23</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="h-8 w-8 bg-blue-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">G</span>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Goals Met</p>
-                    <p className="text-2xl font-bold">12</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center">
-                  <div className="h-8 w-8 bg-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white font-bold">S</span>
-                  </div>
-                  <div className="ml-4">
-                    <p className="text-sm font-medium text-gray-500">Streak</p>
-                    <p className="text-2xl font-bold">7 days</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

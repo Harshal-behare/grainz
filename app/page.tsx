@@ -9,20 +9,29 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Activity, Heart, Shield } from "lucide-react"
+import { supabase } from '../lib/supabaseClient'
+import { useRouter } from 'next/navigation'
 
 export default function SignInPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const router = useRouter();
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle sign in logic here
-    console.log("Sign in with:", { email, password })
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    if (error) {
+      alert(error.message)
+    } else {
+      router.push('/dashboard')
+    }
   }
 
-  const handleGoogleSignIn = () => {
-    // Handle Google sign in logic here
-    console.log("Sign in with Google")
+  const handleGoogleSignIn = async () => {
+    const { error, data } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + '/dashboard' } })
+    if (error) {
+      alert(error.message)
+    }
   }
 
   return (
