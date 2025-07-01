@@ -1,5 +1,12 @@
 import * as React from "react";
 
+interface TabsContextType {
+  active: string;
+  setActive: (value: string) => void;
+}
+
+const TabsContext = React.createContext<TabsContextType | undefined>(undefined);
+
 interface TabsProps {
   defaultValue: string;
   children: React.ReactNode;
@@ -33,10 +40,9 @@ interface TabsTriggerProps {
   className?: string;
 }
 
-const TabsContext = React.createContext<any>(null);
-
 export function TabsTrigger({ value, children, className = "" }: TabsTriggerProps) {
   const ctx = React.useContext(TabsContext);
+  if (!ctx) throw new Error("TabsTrigger must be used within a Tabs");
   const isActive = ctx.active === value;
   return (
     <button
@@ -61,6 +67,7 @@ interface TabsContentProps {
 
 export function TabsContent({ value, children, className = "" }: TabsContentProps) {
   const ctx = React.useContext(TabsContext);
+  if (!ctx) throw new Error("TabsContent must be used within a Tabs");
   if (ctx.active !== value) return null;
   return <div className={className}>{children}</div>;
 } 

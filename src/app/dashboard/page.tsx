@@ -3,7 +3,7 @@ import * as React from "react";
 import { Button } from "../../components/ui/button";
 import { Card } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
-import { Heart, User, Shield, Settings, Trash2, Activity, TrendingUp, Goal, Calendar } from "lucide-react";
+import { Heart, User, Shield, Settings, Trash2, Activity, Goal, Calendar } from "lucide-react";
 
 export default function DashboardPage() {
   return (

@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { createClientComponentClient, User } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
@@ -14,7 +14,7 @@ import Link from "next/link";
 export default function DeleteAccountPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,9 +22,13 @@ export default function DeleteAccountPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      setUser(data.user);
+      if (!data.user) {
+        router.replace("/sign-in");
+      } else {
+        setUser(data.user);
+      }
     });
-  }, []);
+  }, [router, supabase.auth]);
 
   const handleDeleteAccount = async () => {
     if (confirmText !== "DELETE") return;

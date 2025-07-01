@@ -1,14 +1,19 @@
 import * as React from "react";
-import { cn } from "./utils";
+import { cn } from "../../lib/utils";
 
-export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {}
-
-export function Alert({ className, ...props }: AlertProps) {
+export function Alert({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <div className={cn("flex items-start gap-3 p-4 border rounded-lg bg-white", className)} {...props} />
+    <div
+      role="alert"
+      className={cn(
+        "relative w-full rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 shadow-sm",
+        className
+      )}
+      {...props}
+    />
   );
 }
 
 export function AlertDescription({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("text-sm text-gray-700", className)} {...props} />;
+  return <div className={cn("mt-1 text-red-700", className)} {...props} />;
 } 
