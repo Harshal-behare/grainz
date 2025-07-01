@@ -8,15 +8,15 @@ import { Button } from "@/components/ui/button";
 export default function DashboardPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) {
         router.replace("/sign-in");
       } else {
-        setUser(data.user);
+        setUser(data.session.user);
       }
       setLoading(false);
     });
