@@ -1,121 +1,132 @@
 "use client";
-import { useState, useEffect } from "react";
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
-import { useRouter } from "next/navigation";
-// shadcn/ui imports
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
+
+import type React from "react"
+import { useState } from "react"
+import { Button } from "../../components/ui/button"
+import { Input } from "../../components/ui/input"
+import { Label } from "../../components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card"
+import { Separator } from "../../components/ui/separator"
+import { Activity, Heart, Shield } from "lucide-react"
 
 export default function SignInPage() {
-  const supabase = createClientComponentClient();
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        router.replace("/dashboard");
-      }
-    });
-  }, []);
+  const handleSignIn = (e: React.FormEvent) => {
+    e.preventDefault()
+    // Handle sign in logic here
+    console.log("Sign in with:", { email, password })
+  }
 
-  const handleEmailSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) {
-      setError(error.message);
-    } else {
-      router.push("/dashboard");
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        queryParams: {
-          access_type: "offline",
-          prompt: "consent",
-        },
-      },
-    });
-    setLoading(false);
-  };
+  const handleGoogleSignIn = () => {
+    // Handle Google sign in logic here
+    console.log("Sign in with Google")
+  }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-blue-200 px-4">
-      <Card className="w-full max-w-md rounded-2xl shadow-2xl border border-blue-100 bg-white">
-        <CardHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
-          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-            <svg className="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo and Brand */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="bg-primary rounded-full p-3">
+              <Activity className="h-8 w-8 text-white" />
+            </div>
           </div>
-          <CardTitle className="text-3xl font-extrabold text-blue-700">Welcome Back</CardTitle>
-          <CardDescription className="text-gray-500 text-center">Sign in to your account to continue</CardDescription>
-        </CardHeader>
-        <CardContent className="pt-0 pb-8">
-          <form onSubmit={handleEmailSignIn} className="space-y-5">
-            <div>
-              <Label htmlFor="email" className="text-gray-700 font-medium mb-1">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                className="mt-1"
-              />
+          <h1 className="text-3xl font-bold text-gray-900">Grainz</h1>
+          <p className="text-gray-600 mt-2">Health Tracking Made Simple</p>
+        </div>
+
+        <Card className="shadow-lg">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl text-center">Welcome back</CardTitle>
+            <CardDescription className="text-center">Sign in to your Grainz account</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <form onSubmit={handleSignIn} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                Sign In
+              </Button>
+            </form>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+              </div>
             </div>
-            <div>
-              <Label htmlFor="password" className="text-gray-700 font-medium mb-1">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                required
-                className="mt-1"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg shadow transition disabled:opacity-50"
-              disabled={loading}
-            >
-              {loading ? "Signing in..." : "Sign In"}
+
+            <Button variant="outline" className="w-full bg-transparent" onClick={handleGoogleSignIn}>
+              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+                <path
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  fill="#4285F4"
+                />
+                <path
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  fill="#34A853"
+                />
+                <path
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  fill="#FBBC05"
+                />
+                <path
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  fill="#EA4335"
+                />
+              </svg>
+              Continue with Google
             </Button>
-          </form>
-          <div className="my-6 flex items-center justify-center">
-            <Separator className="flex-1" />
-            <span className="mx-3 text-gray-400 font-medium">or</span>
-            <Separator className="flex-1" />
+
+            <div className="text-center text-sm text-gray-600">
+              <a href="#" className="hover:underline">
+                Forgot your password?
+              </a>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Features */}
+        <div className="mt-8 grid grid-cols-3 gap-4 text-center">
+          <div className="flex flex-col items-center">
+            <Heart className="h-6 w-6 text-primary mb-2" />
+            <span className="text-xs text-gray-600">Health Tracking</span>
           </div>
-          <Button
-            variant="outline"
-            onClick={handleGoogleSignIn}
-            className="w-full flex items-center justify-center gap-2 border-gray-200 hover:bg-blue-50 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-sm transition disabled:opacity-50"
-            disabled={loading}
-          >
-            <svg className="w-5 h-5" viewBox="0 0 48 48"><g><path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.7 33.1 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c2.6 0 5 .8 7 2.2l6.4-6.4C33.5 5.1 28.1 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-8.1 20-21 0-1.3-.1-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 17.1 19.2 14 24 14c2.6 0 5 .8 7 2.2l6.4-6.4C33.5 5.1 28.1 3 24 3 15.6 3 8.1 8.5 6.3 14.7z"/><path fill="#FBBC05" d="M24 44c6.1 0 11.2-2 14.9-5.4l-7-5.7C30.1 36 24 36 24 36c-6.1 0-11.2-2-14.9-5.4l7-5.7C17.9 30.9 21.9 34 24 34z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.7C34.7 33.1 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c2.6 0 5 .8 7 2.2l6.4-6.4C33.5 5.1 28.1 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-8.1 20-21 0-1.3-.1-2.7-.5-4z"/></g></svg>
-            Sign in with Google
-          </Button>
-          {error && <div className="mt-4 text-red-600 text-center font-medium">{error}</div>}
-          <div className="mt-8 text-xs text-gray-400 text-center">
-            Google Sign-In is securely configured for this app.
+          <div className="flex flex-col items-center">
+            <Shield className="h-6 w-6 text-primary mb-2" />
+            <span className="text-xs text-gray-600">Secure Data</span>
           </div>
-        </CardContent>
-      </Card>
+          <div className="flex flex-col items-center">
+            <Activity className="h-6 w-6 text-primary mb-2" />
+            <span className="text-xs text-gray-600">Real-time Insights</span>
+          </div>
+        </div>
+      </div>
     </div>
-  );
+  )
 } 

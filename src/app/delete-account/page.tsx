@@ -1,43 +1,36 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import * as React from "react";
+import { useState, useEffect } from "react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from "../../components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import { Activity, AlertTriangle, ArrowLeft, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 export default function DeleteAccountPage() {
   const supabase = createClientComponentClient();
-  const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [user, setUser] = useState<any>(null);
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+  const [confirmText, setConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  // Fetch user on mount
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user);
     });
-    // Listen for auth changes
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => {
-      listener?.subscription.unsubscribe();
-    };
   }, []);
 
-  const handleSignIn = async () => {
-    setLoading(true);
+  const handleDeleteAccount = async () => {
+    if (confirmText !== "DELETE") return;
+    setIsDeleting(true);
     setError(null);
-    await supabase.auth.signInWithOAuth({ provider: "google" });
-    setLoading(false);
-  };
-
-  const handleDelete = async () => {
-    setLoading(true);
-    setError(null);
-    setMessage(null);
+    setSuccess(null);
     try {
       const session = (await supabase.auth.getSession()).data.session;
       if (!session) throw new Error("No session found");
@@ -55,55 +48,117 @@ export default function DeleteAccountPage() {
         const err = await res.text();
         throw new Error(err || "Failed to delete account");
       }
-      setMessage("Your account and all associated data have been deleted.");
+      setSuccess("Your account and all associated data have been deleted.");
       setTimeout(() => {
         supabase.auth.signOut();
-        router.push("/");
+        router.replace("/sign-in");
       }, 2000);
     } catch (e: any) {
       setError(e.message || "An error occurred");
     } finally {
-      setLoading(false);
+      setIsDeleting(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-blue-200 px-4">
-      <Card className="w-full max-w-md rounded-2xl shadow-2xl border border-blue-100 bg-white">
-        <CardHeader className="flex flex-col items-center gap-2 pt-8 pb-4">
-          <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
-            <svg className="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="bg-primary rounded-full p-2 mr-3">
+                <Activity className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-xl font-semibold text-gray-900">Grainz</h1>
+            </div>
+            <Link href="/dashboard">
+              <Button variant="outline">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Dashboard
+              </Button>
+            </Link>
           </div>
-          <CardTitle>Delete Your Account</CardTitle>
-          <CardDescription>Sign in to request deletion of your account and all associated data. This action is <span className="font-semibold text-red-500">irreversible</span>.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {!user ? (
-            <Button
-              variant="outline"
-              onClick={handleSignIn}
-              className="w-full flex items-center justify-center gap-2 border-gray-200 hover:bg-blue-50 text-gray-700 font-semibold py-2 px-4 rounded-lg shadow-sm transition disabled:opacity-50"
-              disabled={loading}
-            >
-              <svg className="w-5 h-5" viewBox="0 0 48 48"><g><path fill="#4285F4" d="M44.5 20H24v8.5h11.7C34.7 33.1 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c2.6 0 5 .8 7 2.2l6.4-6.4C33.5 5.1 28.1 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-8.1 20-21 0-1.3-.1-2.7-.5-4z"/><path fill="#34A853" d="M6.3 14.7l7 5.1C15.1 17.1 19.2 14 24 14c2.6 0 5 .8 7 2.2l6.4-6.4C33.5 5.1 28.1 3 24 3 15.6 3 8.1 8.5 6.3 14.7z"/><path fill="#FBBC05" d="M24 44c6.1 0 11.2-2 14.9-5.4l-7-5.7C30.1 36 24 36 24 36c-6.1 0-11.2-2-14.9-5.4l7-5.7C17.9 30.9 21.9 34 24 34z"/><path fill="#EA4335" d="M44.5 20H24v8.5h11.7C34.7 33.1 30.1 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c2.6 0 5 .8 7 2.2l6.4-6.4C33.5 5.1 28.1 3 24 3 12.4 3 3 12.4 3 24s9.4 21 21 21c10.5 0 20-8.1 20-21 0-1.3-.1-2.7-.5-4z"/></g></svg>
-              Sign in with Google
-            </Button>
-          ) : (
-            <div className="space-y-6">
-              <div className="text-center text-gray-700 text-lg">Signed in as <span className="font-semibold text-blue-700">{user.email}</span></div>
+        </div>
+      </header>
+
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+            <Trash2 className="h-6 w-6 mr-2 text-red-500" />
+            Delete Account
+          </h2>
+          <p className="text-gray-600 mt-2">Permanently delete your Grainz account and all associated data</p>
+        </div>
+
+        <Alert className="mb-6 border-red-200 bg-red-50">
+          <AlertTriangle className="h-4 w-4 text-red-600" />
+          <AlertDescription className="text-red-800">
+            <strong>Warning:</strong> This action cannot be undone. All your health data, progress, and account information will be permanently deleted.
+          </AlertDescription>
+        </Alert>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-red-600">Account Deletion</CardTitle>
+            <CardDescription>Please read the following information carefully before proceeding.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* What will be deleted */}
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-3">What will be deleted:</h3>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li className="flex items-center"><div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>All your health tracking data and metrics</li>
+                <li className="flex items-center"><div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>Personal profile information and preferences</li>
+                <li className="flex items-center"><div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>Goals, achievements, and progress history</li>
+                <li className="flex items-center"><div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>Subscription and billing information</li>
+                <li className="flex items-center"><div className="w-2 h-2 bg-red-500 rounded-full mr-3"></div>All app-generated reports and insights</li>
+              </ul>
+            </div>
+
+            {/* Confirmation */}
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="confirm-text">Type <strong>DELETE</strong> to confirm:</Label>
+                <Input
+                  id="confirm-text"
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="Type DELETE here"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex space-x-3 pt-4">
+              <Link href="/dashboard" className="flex-1">
+                <Button variant="outline" className="w-full bg-transparent">Cancel</Button>
+              </Link>
               <Button
-                className="w-full bg-gradient-to-r from-blue-500 to-blue-700 hover:from-blue-600 hover:to-blue-800 text-white font-bold py-2 px-4 rounded-lg shadow transition"
-                onClick={handleDelete}
-                disabled={loading}
+                variant="outline"
+                className="flex-1"
+                onClick={handleDeleteAccount}
+                disabled={confirmText !== "DELETE" || isDeleting}
               >
-                {loading ? "Deleting..." : "Delete My Account"}
+                {isDeleting ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" />
+                    Delete Account
+                  </>
+                )}
               </Button>
             </div>
-          )}
-          {message && <div className="mt-6 text-green-600 text-center font-semibold">{message}</div>}
-          {error && <div className="mt-6 text-red-600 text-center font-semibold">{error}</div>}
-        </CardContent>
-      </Card>
+            {error && <div className="mt-4 text-red-600 text-center font-medium">{error}</div>}
+            {success && <div className="mt-4 text-green-600 text-center font-medium">{success}</div>}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 } 
