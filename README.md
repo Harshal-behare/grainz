@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 First, run the development server:
 
-```bash
+\`\`\`bash
 npm run dev
 # or
 yarn dev
@@ -12,7 +12,7 @@ yarn dev
 pnpm dev
 # or
 bun dev
-```
+\`\`\`
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
@@ -49,16 +49,16 @@ This is a production-ready Next.js site that allows users to sign in with Google
 ## Setup Instructions
 
 ### 1. Install Dependencies
-```
+\`\`\`
 npm install
-```
+\`\`\`
 
 ### 2. Configure Environment Variables
 Create a `.env.local` file in the project root:
-```
+\`\`\`
 NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
-```
+\`\`\`
 Replace with your actual Supabase project credentials.
 
 ### 3. Supabase Setup
@@ -66,9 +66,9 @@ Replace with your actual Supabase project credentials.
 - Deploy your Edge Function to the provided endpoint (see code for endpoint URL).
 
 ### 4. Run Locally
-```
+\`\`\`
 npm run dev
-```
+\`\`\`
 Visit [http://localhost:3000/delete-account](http://localhost:3000/delete-account)
 
 ### 5. Deploy
