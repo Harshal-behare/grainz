@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import { useState, useEffect } from "react";
-import { createClientComponentClient, User } from "@supabase/auth-helpers-nextjs";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../../components/ui/card";
@@ -14,7 +14,6 @@ import Link from "next/link";
 export default function DeleteAccountPage() {
   const supabase = createClientComponentClient();
   const router = useRouter();
-  const [user, setUser] = useState<User | null>(null);
   const [confirmText, setConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,8 +23,6 @@ export default function DeleteAccountPage() {
     supabase.auth.getUser().then(({ data }) => {
       if (!data.user) {
         router.replace("/sign-in");
-      } else {
-        setUser(data.user);
       }
     });
   }, [router, supabase.auth]);
@@ -57,8 +54,12 @@ export default function DeleteAccountPage() {
         supabase.auth.signOut();
         router.replace("/sign-in");
       }, 2000);
-    } catch (e: any) {
-      setError(e.message || "An error occurred");
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        setError(e.message || "An error occurred");
+      } else {
+        setError("An error occurred");
+      }
     } finally {
       setIsDeleting(false);
     }

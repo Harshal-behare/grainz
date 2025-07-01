@@ -54,7 +54,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <Badge variant="secondary">Admin</Badge>
-              <Button variant="ghost" size="sm" onClick={handleLogout}>
+              <Button variant="outline" onClick={handleLogout}>
                 <LogOut className="h-4 w-4 mr-2" />
                 Logout
               </Button>
