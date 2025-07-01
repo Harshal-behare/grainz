@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -18,8 +18,34 @@ import {
   Database,
   LogOut,
 } from "lucide-react"
+import { getCurrentUser, signOut } from "@/lib/auth"
+import { getAdminStats } from "@/lib/queries"
+import { useRouter } from "next/navigation"
 
 export default function AdminDashboard() {
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [realStats, setRealStats] = useState<any>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    const loadAdminDashboard = async () => {
+      const { user: authUser } = await getCurrentUser()
+
+      if (!authUser || authUser.email !== "admin@grainz.com") {
+        router.push("/")
+        return
+      }
+
+      const adminData = await getAdminStats()
+      setUser(authUser)
+      setRealStats(adminData)
+      setLoading(false)
+    }
+
+    loadAdminDashboard()
+  }, [router])
+
   const [stats] = useState({
     totalUsers: 12847,
     activeUsers: 8932,
@@ -33,8 +59,25 @@ export default function AdminDashboard() {
     churnRate: 2.3,
   })
 
+  const displayStats = realStats || {
+    totalUsers: 0,
+    activeUsers: 0,
+    newUsers: 0,
+    totalActivities: 0,
+    totalNotifications: 0,
+  }
+
   const handleLogout = () => {
-    console.log("Admin logout")
+    signOut()
+    router.push("/")
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    )
   }
 
   return (
@@ -77,8 +120,8 @@ export default function AdminDashboard() {
                 <Users className="h-8 w-8 text-blue-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Total Users</p>
-                  <p className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</p>
-                  <p className="text-xs text-green-600">+{stats.newSignups} this month</p>
+                  <p className="text-2xl font-bold">{displayStats.totalUsers.toLocaleString()}</p>
+                  <p className="text-xs text-green-600">+{displayStats.newUsers} this month</p>
                 </div>
               </div>
             </CardContent>
@@ -90,9 +133,12 @@ export default function AdminDashboard() {
                 <Activity className="h-8 w-8 text-green-500" />
                 <div className="ml-4">
                   <p className="text-sm font-medium text-gray-500">Active Users</p>
-                  <p className="text-2xl font-bold">{stats.activeUsers.toLocaleString()}</p>
+                  <p className="text-2xl font-bold">{displayStats.activeUsers.toLocaleString()}</p>
                   <p className="text-xs text-gray-600">
-                    {((stats.activeUsers / stats.totalUsers) * 100).toFixed(1)}% of total
+                    {displayStats.totalUsers > 0
+                      ? ((displayStats.activeUsers / displayStats.totalUsers) * 100).toFixed(1)
+                      : 0}
+                    % of total
                   </p>
                 </div>
               </div>

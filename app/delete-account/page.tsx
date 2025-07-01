@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -9,25 +9,59 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Activity, AlertTriangle, ArrowLeft, Trash2 } from "lucide-react"
 import Link from "next/link"
+import { getCurrentUser, signOut } from "@/lib/auth"
+import { deleteUserAccount } from "@/lib/queries"
+import { useRouter } from "next/navigation"
 
 export default function DeleteAccountPage() {
   const [confirmText, setConfirmText] = useState("")
   const [confirmChecked, setConfirmChecked] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    const checkUser = async () => {
+      const { user: authUser } = await getCurrentUser()
+      if (!authUser) {
+        router.push("/")
+        return
+      }
+      setUser(authUser)
+      setLoading(false)
+    }
+    checkUser()
+  }, [router])
 
   const handleDeleteAccount = async () => {
-    if (confirmText !== "DELETE" || !confirmChecked) return
+    if (confirmText !== "DELETE" || !confirmChecked || !user) return
 
     setIsDeleting(true)
-    // Simulate API call
-    setTimeout(() => {
-      console.log("Account deleted")
+
+    const { error } = await deleteUserAccount(user.id)
+
+    if (error) {
+      setError(error.message || "Failed to delete account")
       setIsDeleting(false)
-      // Redirect to sign-in page
-    }, 2000)
+      return
+    }
+
+    // Sign out and redirect
+    await signOut()
+    router.push("/")
   }
 
   const canDelete = confirmText === "DELETE" && confirmChecked
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -59,6 +93,15 @@ export default function DeleteAccountPage() {
           </h2>
           <p className="text-gray-600 mt-2">Permanently delete your Grainz account and all associated data</p>
         </div>
+
+        {error && (
+          <Alert className="mb-6 border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              <strong>Error:</strong> {error}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Alert className="mb-6 border-red-200 bg-red-50">
           <AlertTriangle className="h-4 w-4 text-red-600" />

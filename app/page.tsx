@@ -2,27 +2,75 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { Activity, Heart, Shield } from "lucide-react"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Activity, Heart, Shield, AlertCircle } from "lucide-react"
+import { signInWithEmail, signInWithGoogle, getCurrentUser } from "@/lib/auth"
 
 export default function SignInPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
+  const router = useRouter()
 
-  const handleSignIn = (e: React.FormEvent) => {
+  useEffect(() => {
+    // Check if user is already logged in
+    const checkUser = async () => {
+      const { user } = await getCurrentUser()
+      if (user) {
+        // Check if user is admin
+        if (user.email === process.env.NEXT_PUBLIC_ADMIN_EMAIL || user.email === "admin@grainz.com") {
+          router.push("/admin")
+        } else {
+          router.push("/dashboard")
+        }
+      }
+    }
+    checkUser()
+  }, [router])
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle sign in logic here
-    console.log("Sign in with:", { email, password })
+    setLoading(true)
+    setError("")
+
+    const { data, error } = await signInWithEmail(email, password)
+
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+      return
+    }
+
+    if (data.user) {
+      // Check if user is admin
+      if (data.user.email === "admin@grainz.com") {
+        router.push("/admin")
+      } else {
+        router.push("/dashboard")
+      }
+    }
+
+    setLoading(false)
   }
 
-  const handleGoogleSignIn = () => {
-    // Handle Google sign in logic here
-    console.log("Sign in with Google")
+  const handleGoogleSignIn = async () => {
+    setLoading(true)
+    setError("")
+
+    const { error } = await signInWithGoogle()
+
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    }
   }
 
   return (
@@ -45,6 +93,13 @@ export default function SignInPage() {
             <CardDescription className="text-center">Sign in to your Grainz account</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
@@ -55,6 +110,7 @@ export default function SignInPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
               <div className="space-y-2">
@@ -66,10 +122,11 @@ export default function SignInPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={loading}
                 />
               </div>
-              <Button type="submit" className="w-full">
-                Sign In
+              <Button type="submit" className="w-full" disabled={loading}>
+                {loading ? "Signing in..." : "Sign In"}
               </Button>
             </form>
 
@@ -82,7 +139,7 @@ export default function SignInPage() {
               </div>
             </div>
 
-            <Button variant="outline" className="w-full bg-transparent" onClick={handleGoogleSignIn}>
+            <Button variant="outline" className="w-full bg-transparent" onClick={handleGoogleSignIn} disabled={loading}>
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                 <path
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -105,9 +162,9 @@ export default function SignInPage() {
             </Button>
 
             <div className="text-center text-sm text-gray-600">
-              <a href="#" className="hover:underline">
-                Forgot your password?
-              </a>
+              <p>Demo Credentials:</p>
+              <p className="text-xs">Admin: admin@grainz.com / admin123</p>
+              <p className="text-xs">User: user@grainz.com / user123</p>
             </div>
           </CardContent>
         </Card>
