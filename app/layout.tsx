@@ -6,8 +6,8 @@ import "./globals.css"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Grainz - Health Tracking Made Simple",
-  description: "Track your health journey with Grainz",
+  title: "grainZ - Health Tracking Made Simple",
+  description: "Track your health journey with grainZ",
     generator: 'v0.dev'
 }
 
