@@ -12,6 +12,7 @@ import Link from "next/link"
 import { supabase } from "../../lib/supabaseClient"
 import { useRouter } from "next/navigation"
 
+
 export default function DeleteAccountPage() {
   const [confirmText, setConfirmText] = useState("")
   const [confirmChecked, setConfirmChecked] = useState(false)
@@ -44,7 +45,7 @@ export default function DeleteAccountPage() {
       return
     }
     try {
-      const res = await fetch("https://zsmslciskgzvzqvwceos.supabase.co/functions/v1/delete-account", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/delete-account`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${session.access_token}`,
