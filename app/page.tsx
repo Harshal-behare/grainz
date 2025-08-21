@@ -7,7 +7,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-100">
       {/* Hero Section */}
       <section className="relative overflow-hidden">
-        <div className="container mx-auto px-4 py-12 lg:py-20">
+        <div className="container mx-auto px-4 py-10 lg:py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Text Content */}
             <div className="text-center lg:text-left space-y-8">
@@ -65,22 +65,26 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Hero Image */}
+            {/* Hero Image - TRANSPARENT PNG */}
             <div className="relative">
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+              <div className="relative">
                 <Image
-                  src="/Hero_image.jpg"
-                  alt="Fitness Transformation"
+                  src="/maitri-cutout-crop.png"   // <— transparent PNG/WebP in /public
+                  alt="Maitri Ramaiya"
                   width={600}
-                  height={800}
-                  className="w-full h-auto object-cover"
+                  height={600}
                   priority
+                  className="w-full h-auto object-contain pointer-events-none select-none"
+                  style={{
+                    // soft shadow around hair/edges; tweak if needed
+                    filter: 'drop-shadow(0 12px 24px rgba(0,0,0,0.18))'
+                  }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-orange-900/20 to-transparent"></div>
               </div>
-              {/* Decorative elements */}
-              <div className="absolute -z-10 top-10 right-10 w-72 h-72 bg-orange-300 rounded-full filter blur-3xl opacity-30 animate-pulse"></div>
-              <div className="absolute -z-10 bottom-10 left-10 w-72 h-72 bg-orange-400 rounded-full filter blur-3xl opacity-20 animate-pulse delay-700"></div>
+
+              {/* Decorative glow BEHIND the person */}
+              <div className="absolute -z-10 top-10 right-10 w-72 h-72 bg-orange-300 rounded-full blur-3xl opacity-30 animate-pulse"></div>
+              <div className="absolute -z-10 bottom-10 left-10 w-72 h-72 bg-orange-400 rounded-full blur-3xl opacity-20 animate-pulse delay-700"></div>
             </div>
           </div>
         </div>
@@ -95,9 +99,8 @@ export default function HomePage() {
               Comprehensive fitness solutions tailored to your unique needs and goals
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Personal Training */}
             <div className="bg-gradient-to-br from-orange-50 to-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="bg-orange-500 w-14 h-14 rounded-lg flex items-center justify-center mb-6">
                 <Target className="h-8 w-8 text-white" />
@@ -108,7 +111,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Nutrition Planning */}
             <div className="bg-gradient-to-br from-orange-50 to-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="bg-orange-500 w-14 h-14 rounded-lg flex items-center justify-center mb-6">
                 <Apple className="h-8 w-8 text-white" />
@@ -119,7 +121,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Online Coaching */}
             <div className="bg-gradient-to-br from-orange-50 to-white p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300">
               <div className="bg-orange-500 w-14 h-14 rounded-lg flex items-center justify-center mb-6">
                 <Users className="h-8 w-8 text-white" />
@@ -168,11 +169,9 @@ export default function HomePage() {
               </div>
               <p className="text-gray-400 text-sm">© 2024 grainZ by Maitri Ramaiya. All rights reserved.</p>
             </div>
-            
-            {/* Login Button - Small and Subtle */}
             <div className="text-sm">
-              <Link 
-                href="/login" 
+              <Link
+                href="/login"
                 className="text-gray-400 hover:text-orange-400 transition-colors duration-200 underline-offset-4 hover:underline"
               >
                 Admin Login
