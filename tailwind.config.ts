@@ -10,6 +10,30 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: ['var(--font-inter)', 'system-ui', '-apple-system', 'sans-serif'],
+  			heading: ['var(--font-poppins)', 'system-ui', '-apple-system', 'sans-serif'],
+  		},
+  		fontSize: {
+  			'xs': ['0.75rem', { lineHeight: '1rem', letterSpacing: '0.025em' }],
+  			'sm': ['0.875rem', { lineHeight: '1.25rem', letterSpacing: '0.015em' }],
+  			'base': ['1rem', { lineHeight: '1.5rem', letterSpacing: '0' }],
+  			'lg': ['1.125rem', { lineHeight: '1.75rem', letterSpacing: '-0.01em' }],
+  			'xl': ['1.25rem', { lineHeight: '1.875rem', letterSpacing: '-0.015em' }],
+  			'2xl': ['1.5rem', { lineHeight: '2rem', letterSpacing: '-0.02em' }],
+  			'3xl': ['1.875rem', { lineHeight: '2.375rem', letterSpacing: '-0.025em' }],
+  			'4xl': ['2.25rem', { lineHeight: '2.75rem', letterSpacing: '-0.03em' }],
+  			'5xl': ['3rem', { lineHeight: '3.5rem', letterSpacing: '-0.035em' }],
+  			'6xl': ['3.75rem', { lineHeight: '4.25rem', letterSpacing: '-0.04em' }],
+  			'7xl': ['4.5rem', { lineHeight: '5rem', letterSpacing: '-0.045em' }],
+  			'8xl': ['6rem', { lineHeight: '6.5rem', letterSpacing: '-0.05em' }],
+  		},
+  		spacing: {
+  			'18': '4.5rem',
+  			'88': '22rem',
+  			'100': '25rem',
+  			'120': '30rem',
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -87,7 +111,12 @@ const config: Config = {
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+  			'float': 'float 6s ease-in-out infinite',
+  			'pulse-slow': 'pulse-slow 4s ease-in-out infinite',
+  			'fade-in-up': 'fade-in-up 0.8s ease-out forwards',
+  			'fade-in-down': 'fade-in-down 0.8s ease-out forwards',
+  			'scale-in': 'scale-in 0.6s ease-out forwards',
   		}
   	}
   },
