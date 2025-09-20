@@ -282,8 +282,14 @@ export default function HomePage() {
           <div className="flex flex-col md:flex-row justify-between items-center space-y-6 md:space-y-0">
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start space-x-3 mb-4">
-                <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-2 rounded-xl shadow-lg">
-                  <Dumbbell className="h-6 w-6 text-white" />
+                <div className="rounded-xl overflow-hidden shadow-lg w-10 h-10">
+                  <Image
+                    src="/grainz_logo.jpg"
+                    alt="grainZ Logo"
+                    width={40}
+                    height={40}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
                 <span className="text-2xl font-heading font-bold">grainZ</span>
               </div>
