@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Dumbbell, Menu, X } from 'lucide-react'
+import Image from 'next/image'
+import { Menu, X } from 'lucide-react'
 
 export default function NavigationHeader() {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -36,10 +37,16 @@ export default function NavigationHeader() {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
-            <div className={`bg-gradient-to-br from-orange-500 to-orange-600 p-2.5 rounded-xl shadow-lg transform group-hover:scale-105 transition-all duration-300 ${
-              isScrolled ? 'scale-90' : ''
+            <div className={`rounded-xl overflow-hidden shadow-lg transform group-hover:scale-105 transition-all duration-300 ${
+              isScrolled ? 'w-10 h-10' : 'w-12 h-12'
             }`}>
-              <Dumbbell className="h-6 w-6 text-white" />
+              <Image
+                src="/grainz_logo.jpg"
+                alt="grainZ Logo"
+                width={48}
+                height={48}
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className={`font-heading font-bold gradient-text transition-all duration-300 ${
               isScrolled ? 'text-2xl' : 'text-3xl'

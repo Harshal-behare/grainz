@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { Dumbbell, Heart, Apple, Target, Users, Award, Mail, Phone, MapPin } from 'lucide-react'
+import { Heart, Apple, Target, Users, Award, Mail, Phone, MapPin } from 'lucide-react'
 import NavigationHeader from '@/components/navigation-header'
 
 export default function HomePage() {
@@ -19,8 +19,14 @@ export default function HomePage() {
               {/* Logo and Brand */}
               <div className="space-y-4">
                 <div className="flex items-center justify-center lg:justify-start space-x-4">
-                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-4 shadow-xl transform hover:scale-105 transition-transform duration-300">
-                    <Dumbbell className="h-8 w-8 md:h-10 md:w-10 text-white" />
+                  <div className="rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-transform duration-300 w-16 h-16 md:w-20 md:h-20">
+                    <Image
+                      src="/grainz_logo.jpg"
+                      alt="grainZ Logo"
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-bold gradient-text">

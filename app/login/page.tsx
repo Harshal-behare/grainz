@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import Image from 'next/image'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -41,8 +42,14 @@ export default function SignInPage() {
         {/* Logo and Brand */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="bg-primary rounded-full p-3">
-              <Activity className="h-8 w-8 text-white" />
+            <div className="rounded-2xl overflow-hidden shadow-lg w-20 h-20">
+              <Image
+                src="/grainz_logo.jpg"
+                alt="grainZ Logo"
+                width={80}
+                height={80}
+                className="w-full h-full object-cover"
+              />
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900">grainZ</h1>

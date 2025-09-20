@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -44,11 +45,17 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="bg-primary rounded-full p-2 mr-3">
-                <Activity className="h-6 w-6 text-white" />
+              <div className="rounded-xl overflow-hidden mr-3 w-10 h-10 shadow-md">
+                <Image
+                  src="/grainz_logo.jpg"
+                  alt="grainZ Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
-                <h1 className="text-xl font-semibold text-gray-900">Grainz Admin</h1>
+                <h1 className="text-xl font-semibold text-gray-900">grainZ Admin</h1>
                 <p className="text-xs text-gray-500">Health Tracking Analytics</p>
               </div>
             </div>
